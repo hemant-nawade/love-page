@@ -20,7 +20,7 @@ export default function ShopGrid({ products }: { products: Product[] }) {
   return (
     <div>
       {categories.length > 1 && (
-        <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
+           <div className="mb-8 flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => (
             <button
               key={cat}

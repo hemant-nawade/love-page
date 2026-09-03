@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { Truck, CreditCard, Heart } from 'lucide-react';
 import { useCart } from './CartProvider';
 import { formatINR } from '@/lib/utils';
@@ -111,24 +112,61 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
     router.push('/checkout');
   }
 
+  function handleSwipe(direction: number) {
+    const lastIndex = product.images.length - 1;
+    setActiveImage((prev) => {
+      const next = prev + direction;
+      if (next < 0) return lastIndex;
+      if (next > lastIndex) return 0;
+      return next;
+    });
+  }
+
   return (
     <div className="grid gap-8 md:grid-cols-2">
       {/* Image carousel */}
       <div>
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl2 bg-rose-50">
+        <div className="relative aspect-square w-full touch-pan-y select-none overflow-hidden rounded-xl2 bg-rose-50">
           {product.images[activeImage]?.url ? (
-            <Image
-              src={product.images[activeImage].url!}
-              alt={product.name}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
+            <motion.div
+              key={activeImage}
+              className="relative h-full w-full"
+              drag={product.images.length > 1 ? 'x' : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.6}
+              onDragEnd={(_e, info) => {
+                if (info.offset.x < -60) handleSwipe(1);
+                else if (info.offset.x > 60) handleSwipe(-1);
+              }}
+            >
+              <Image
+                src={product.images[activeImage].url!}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="pointer-events-none object-cover"
+                priority
+                draggable={false}
+              />
+            </motion.div>
           ) : (
             <div className="flex h-full items-center justify-center text-4xl text-rose-300">❤️</div>
           )}
+
+          {product.images.length > 1 && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+              {product.images.map((img, i) => (
+                <span
+                  key={img.id}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === activeImage ? 'w-5 bg-white' : 'w-1.5 bg-white/60'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
+
         {product.images.length > 1 && (
           <div className="mt-3 flex gap-2 overflow-x-auto">
             {product.images.map((img, i) => (
@@ -186,21 +224,21 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
                     rows={3}
                     value={values[field.id] || ''}
                     onChange={(e) => setValues((v) => ({ ...v, [field.id]: e.target.value }))}
-                    className="w-full rounded-lg border border-rose-200 px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-rose-200 px-3 py-2 text-base"
                   />
                 ) : field.field_type === 'date' ? (
                   <input
                     type="date"
                     value={values[field.id] || ''}
                     onChange={(e) => setValues((v) => ({ ...v, [field.id]: e.target.value }))}
-                    className="w-full rounded-lg border border-rose-200 px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-rose-200 px-3 py-2 text-base"
                   />
                 ) : (
                   <input
                     type="text"
                     value={values[field.id] || ''}
                     onChange={(e) => setValues((v) => ({ ...v, [field.id]: e.target.value }))}
-                    className="w-full rounded-lg border border-rose-200 px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-rose-200 px-3 py-2 text-base"
                   />
                 )}
               </div>
@@ -211,9 +249,9 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
         <div className="mt-6 flex items-center gap-3">
           <span className="text-sm font-medium text-ink">Quantity</span>
           <div className="flex items-center rounded-full border border-rose-200">
-            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="h-9 w-9 text-lg">−</button>
+            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="h-11 w-11 text-lg">−</button>
             <span className="w-8 text-center text-sm font-semibold">{quantity}</span>
-            <button onClick={() => setQuantity((q) => q + 1)} className="h-9 w-9 text-lg">+</button>
+            <button onClick={() => setQuantity((q) => q + 1)} className="h-11 w-11 text-lg">+</button>
           </div>
         </div>
 

@@ -125,21 +125,21 @@ export default function CheckoutPage() {
         <div className="space-y-4 md:col-span-2">
           <div className="card-lp space-y-3 p-5">
             <p className="text-sm font-semibold text-ink">Your Details</p>
-            <input placeholder="Full Name *" value={form.full_name} onChange={(e) => update('full_name', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
-            <input placeholder="Mobile Number *" value={form.phone} onChange={(e) => update('phone', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
-            <input placeholder="Email *" value={form.email} onChange={(e) => update('email', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
+            <input placeholder="Full Name *" value={form.full_name} onChange={(e) => update('full_name', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
+            <input placeholder="Mobile Number *" value={form.phone} onChange={(e) => update('phone', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
+            <input placeholder="Email *" value={form.email} onChange={(e) => update('email', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
           </div>
 
           <div className="card-lp space-y-3 p-5">
             <p className="text-sm font-semibold text-ink">Shipping Address</p>
-            <input placeholder="Address *" value={form.address_line} onChange={(e) => update('address_line', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
+            <input placeholder="Address *" value={form.address_line} onChange={(e) => update('address_line', e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
             <div className="grid grid-cols-2 gap-3">
-              <input placeholder="City *" value={form.city} onChange={(e) => update('city', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
-              <input placeholder="State *" value={form.state} onChange={(e) => update('state', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
+              <input placeholder="City *" value={form.city} onChange={(e) => update('city', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
+              <input placeholder="State *" value={form.state} onChange={(e) => update('state', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <input placeholder="PIN Code *" value={form.pincode} onChange={(e) => update('pincode', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
-              <input placeholder="Landmark (optional)" value={form.landmark} onChange={(e) => update('landmark', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
+              <input placeholder="PIN Code *" value={form.pincode} onChange={(e) => update('pincode', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
+              <input placeholder="Landmark (optional)" value={form.landmark} onChange={(e) => update('landmark', e.target.value)} className="rounded-lg border border-rose-200 px-3 py-2.5 text-base" />
             </div>
           </div>
         </div>
