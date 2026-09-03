@@ -18,7 +18,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-maroon-100 bg-cream/95 backdrop-blur">
-      <div className="promo-bar">
+      <div className="bg-olive-600 py-2 text-center text-xs font-semibold uppercase tracking-wide text-cream">
         Handcrafted frames and personalized gifts, made to order
       </div>
       <div className="container-lp flex h-16 items-center justify-between">
