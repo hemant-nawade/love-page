@@ -25,7 +25,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 50vw, 33vw"
-                className="object-cover"
+                className="object-contain"
               />
             </motion.div>
           ) : (
