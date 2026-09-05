@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface FieldRow {
@@ -34,10 +34,23 @@ export default function ProductForm({ initial }: { initial?: ProductFormValue })
   const [price, setPrice] = useState(initial?.price?.toString() || '');
   const [description, setDescription] = useState(initial?.description || '');
   const [category, setCategory] = useState(initial?.category || '');
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [isPersonalized, setIsPersonalized] = useState(initial?.is_personalized ?? true);
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [fields, setFields] = useState<FieldRow[]>(initial?.customization_fields || []);
   const [images, setImages] = useState<ImageRow[]>(initial?.images || []);
+
+  useEffect(() => {
+    fetch('/api/admin/products')
+      .then((r) => r.json())
+      .then((data) => {
+        const cats = (data.products || [])
+          .map((p: any) => p.category)
+          .filter((c: string | null): c is string => !!c);
+        setExistingCategories(Array.from(new Set<string>(cats)).sort());
+      })
+      .catch(() => {});
+  }, []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +130,36 @@ export default function ProductForm({ initial }: { initial?: ProductFormValue })
         <input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
         <input placeholder="Price (₹)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
         <textarea placeholder="Description" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
-        <input placeholder="Category (optional)" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm" />
+        <div>
+          <input
+            list="category-options"
+            placeholder="Category — pick existing or type a new one"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm"
+          />
+          <datalist id="category-options">
+            {existingCategories.map((cat) => (
+              <option key={cat} value={cat} />
+            ))}
+          </datalist>
+          {existingCategories.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {existingCategories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={`icon-btn rounded-full px-3 py-1 text-xs font-medium ${
+                    category === cat ? 'bg-ink text-cream' : 'bg-rose-50 text-charcoal hover:bg-rose-100'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="flex flex-wrap gap-5">
           <label className="flex items-center gap-2 text-sm text-charcoal">
             <input type="checkbox" checked={isPersonalized} onChange={(e) => setIsPersonalized(e.target.checked)} /> Personalized product

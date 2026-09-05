@@ -35,7 +35,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href="/cart" className="relative flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-maroon-50" aria-label="Cart">
+          <Link href="/cart" className="icon-btn relative flex h-11 w-11 items-center justify-center rounded-full hover:bg-maroon-50 active:bg-maroon-100" aria-label="Cart">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 6h15l-1.5 9h-12z" />
               <path d="M6 6L4.5 3H2" />
@@ -59,7 +59,7 @@ export default function Header() {
           </Link>
 
           <button
-            className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-maroon-50 md:hidden"
+            className="icon-btn flex h-11 w-11 items-center justify-center rounded-full hover:bg-maroon-50 active:bg-maroon-100 md:hidden"
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
           >

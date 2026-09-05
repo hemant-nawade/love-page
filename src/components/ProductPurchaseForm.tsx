@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Truck, CreditCard, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Truck, CreditCard, Heart, Check, X, Loader2 } from 'lucide-react';
 import { useCart } from './CartProvider';
 import { formatINR } from '@/lib/utils';
+import { compressImage } from '@/lib/compressImage';
 import type { CustomizationField, ProductImage } from '@/types';
 
 interface ProductForForm {
@@ -20,6 +21,12 @@ interface ProductForForm {
   customization_fields: CustomizationField[];
 }
 
+interface PhotoPreview {
+  previewUrl: string;
+  status: 'uploading' | 'done' | 'error';
+  storagePath?: string;
+}
+
 export default function ProductPurchaseForm({ product }: { product: ProductForForm }) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -28,7 +35,7 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
   const [quantity, setQuantity] = useState(1);
   const [values, setValues] = useState<Record<string, string>>({});
   const [photoUploads, setPhotoUploads] = useState<Record<string, string[]>>({});
-  const [uploading, setUploading] = useState<string | null>(null);
+  const [photoPreviews, setPhotoPreviews] = useState<Record<string, PhotoPreview[]>>({});
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
 
@@ -37,29 +44,76 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
   async function handlePhotoChange(field: CustomizationField, files: FileList | null) {
     if (!files || !files.length) return;
     setError(null);
-    setUploading(field.id);
 
     const maxPhotos = field.max_photos || 1;
     const existing = photoUploads[field.id] || [];
     const remainingSlots = maxPhotos - existing.length;
     const toUpload = Array.from(files).slice(0, Math.max(0, remainingSlots));
+    if (toUpload.length === 0) return;
 
-    try {
-      const uploadedPaths: string[] = [];
-      for (const file of toUpload) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await fetch('/api/upload', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Upload failed.');
-        uploadedPaths.push(data.storage_path);
-      }
-      setPhotoUploads((prev) => ({ ...prev, [field.id]: [...existing, ...uploadedPaths] }));
-    } catch (e: any) {
-      setError(e.message || 'Photo upload failed. Please try again.');
-    } finally {
-      setUploading(null);
+    // Show local thumbnails immediately so the person sees their photo was
+    // received right away, instead of staring at a blank "Uploading…" label.
+    const startIndex = (photoPreviews[field.id] || []).length;
+    const newPreviews: PhotoPreview[] = toUpload.map((file) => ({
+      previewUrl: URL.createObjectURL(file),
+      status: 'uploading',
+    }));
+    setPhotoPreviews((prev) => ({ ...prev, [field.id]: [...(prev[field.id] || []), ...newPreviews] }));
+
+    // Compress + upload all selected photos in parallel rather than one by
+    // one — this is what actually makes multi-photo uploads feel fast.
+    const results = await Promise.all(
+      toUpload.map(async (file, i) => {
+        try {
+          const compressed = await compressImage(file);
+          const formData = new FormData();
+          formData.append('file', compressed);
+          const res = await fetch('/api/upload', { method: 'POST', body: formData });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Upload failed.');
+          return { index: startIndex + i, storagePath: data.storage_path as string, ok: true };
+        } catch {
+          return { index: startIndex + i, storagePath: null, ok: false };
+        }
+      })
+    );
+
+    setPhotoPreviews((prev) => {
+      const updated = [...(prev[field.id] || [])];
+      results.forEach((r) => {
+        if (updated[r.index]) {
+          updated[r.index] = {
+            ...updated[r.index],
+            status: r.ok ? 'done' : 'error',
+            storagePath: r.storagePath || undefined,
+          };
+        }
+      });
+      return { ...prev, [field.id]: updated };
+    });
+
+    const successfulPaths = results.filter((r) => r.ok).map((r) => r.storagePath!) as string[];
+    if (successfulPaths.length) {
+      setPhotoUploads((prev) => ({ ...prev, [field.id]: [...existing, ...successfulPaths] }));
     }
+    if (results.some((r) => !r.ok)) {
+      setError('One or more photos failed to upload. Please try again.');
+    }
+  }
+
+  function removePhoto(field: CustomizationField, index: number) {
+    setPhotoPreviews((prev) => {
+      const list = [...(prev[field.id] || [])];
+      const [removed] = list.splice(index, 1);
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return { ...prev, [field.id]: list };
+    });
+    setPhotoUploads((prev) => {
+      const list = [...(prev[field.id] || [])];
+      const previews = photoPreviews[field.id] || [];
+      const removedPath = previews[index]?.storagePath;
+      return { ...prev, [field.id]: list.filter((p) => p !== removedPath) };
+    });
   }
 
   function validate(): boolean {
@@ -206,14 +260,52 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
                       type="file"
                       accept="image/*"
                       multiple={(field.max_photos || 1) > 1}
-                      onChange={(e) => handlePhotoChange(field, e.target.files)}
+                      onChange={(e) => {
+                        handlePhotoChange(field, e.target.files);
+                        e.target.value = '';
+                      }}
                       className="block w-full text-sm text-charcoal file:mr-3 file:rounded-full file:border-0 file:bg-rose-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-rose-700"
                     />
-                    {uploading === field.id && <p className="mt-1 text-xs text-charcoal">Uploading…</p>}
-                    {photoUploads[field.id]?.length > 0 && (
-                      <p className="mt-1 text-xs text-green-700">
-                        {photoUploads[field.id].length} photo(s) uploaded
-                      </p>
+                    {(photoPreviews[field.id]?.length ?? 0) > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <AnimatePresence>
+                          {photoPreviews[field.id].map((p, i) => (
+                            <motion.div
+                              key={p.previewUrl}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              className="relative h-16 w-16 overflow-hidden rounded-lg border border-rose-200"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={p.previewUrl} alt="" className="h-full w-full object-cover" />
+                              {p.status === 'uploading' && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                  <Loader2 size={18} className="animate-spin text-white" />
+                                </div>
+                              )}
+                              {p.status === 'done' && (
+                                <div className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-green-600">
+                                  <Check size={11} strokeWidth={3} className="text-white" />
+                                </div>
+                              )}
+                              {p.status === 'error' && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-red-600/60">
+                                  <X size={16} className="text-white" />
+                                </div>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => removePhoto(field, i)}
+                                className="absolute left-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/50 text-white"
+                                aria-label="Remove photo"
+                              >
+                                <X size={10} strokeWidth={3} />
+                              </button>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
                     )}
                     {field.max_photos && field.max_photos > 1 && (
                       <p className="mt-1 text-xs text-charcoal">Up to {field.max_photos} photos</p>
@@ -249,9 +341,9 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
         <div className="mt-6 flex items-center gap-3">
           <span className="text-sm font-medium text-ink">Quantity</span>
           <div className="flex items-center rounded-full border border-rose-200">
-            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="h-11 w-11 text-lg">−</button>
+            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="icon-btn h-11 w-11 rounded-full text-lg active:bg-rose-50">−</button>
             <span className="w-8 text-center text-sm font-semibold">{quantity}</span>
-            <button onClick={() => setQuantity((q) => q + 1)} className="h-11 w-11 text-lg">+</button>
+            <button onClick={() => setQuantity((q) => q + 1)} className="icon-btn h-11 w-11 rounded-full text-lg active:bg-rose-50">+</button>
           </div>
         </div>
 
