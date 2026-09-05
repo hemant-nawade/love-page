@@ -198,7 +198,7 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
                 alt={product.name}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="pointer-events-none object-cover"
+                className="pointer-events-none object-contain"
                 priority
                 draggable={false}
               />
@@ -231,7 +231,7 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
                   i === activeImage ? 'border-rose-500' : 'border-transparent'
                 }`}
               >
-                <Image src={img.url!} alt="" fill sizes="64px" className="object-cover" />
+                <Image src={img.url!} alt="" fill sizes="64px" className="object-contain" />
               </button>
             ))}
           </div>
@@ -278,7 +278,7 @@ export default function ProductPurchaseForm({ product }: { product: ProductForFo
                               className="relative h-16 w-16 overflow-hidden rounded-lg border border-rose-200"
                             >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={p.previewUrl} alt="" className="h-full w-full object-cover" />
+                              <img src={p.previewUrl} alt="" className="h-full w-full object-contain bg-rose-50" />
                               {p.status === 'uploading' && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                                   <Loader2 size={18} className="animate-spin text-white" />
