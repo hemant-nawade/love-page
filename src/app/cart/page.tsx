@@ -51,9 +51,9 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center rounded-full border border-rose-200">
-                    <button onClick={() => updateQuantity(i, item.quantity - 1)} className="h-10 w-10 text-base">−</button>
+                    <button onClick={() => updateQuantity(i, item.quantity - 1)} className="icon-btn h-10 w-10 rounded-full text-base active:bg-rose-50">−</button>
                     <span className="w-7 text-center text-sm font-semibold">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(i, item.quantity + 1)} className="h-10 w-10 text-base">+</button>
+                    <button onClick={() => updateQuantity(i, item.quantity + 1)} className="icon-btn h-10 w-10 rounded-full text-base active:bg-rose-50">+</button>
                   </div>
                   <button onClick={() => removeItem(i)} className="text-xs font-medium text-charcoal underline">
                     Remove
