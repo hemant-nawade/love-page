@@ -62,4 +62,4 @@ export function compressImage(file: File, maxDimension = 1600, quality = 0.75): 
 
     img.src = objectUrl;
   });
-}
+}  
