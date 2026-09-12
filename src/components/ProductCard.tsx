@@ -12,10 +12,11 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="card-lp group overflow-hidden border border-maroon-50"
-    >
+  whileHover={{ y: -4 }}
+  whileTap={{ scale: 0.97 }}
+  transition={{ duration: 0.25, ease: 'easeOut' }}
+  className="card-lp group overflow-hidden border border-maroon-50"
+>
       <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-maroon-50">
           {image ? (
@@ -32,7 +33,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <div className="flex h-full w-full items-center justify-center text-maroon-200">
               <ImageOff size={28} strokeWidth={1.5} />
             </div>
-          )}
+          )} 
           {product.category && (
             <span className="absolute left-2 top-2 rounded-full bg-cream/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-ink">
               {product.category}

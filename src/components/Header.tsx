@@ -28,7 +28,7 @@ export default function Header() {
 
         <nav className="hidden gap-8 md:flex">
           {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="relative text-sm font-medium text-ink transition-colors hover:text-maroon-500">
+            <Link key={item.href} href={item.href} className="relative text-sm font-medium text-ink transition-colors hover:text-maroon-500 active:text-maroon-700 active:opacity-60">
               {item.label}
             </Link>
           ))}
@@ -84,7 +84,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="py-3 text-base font-medium text-ink"
+                  className="py-3 text-base font-medium text-ink transition active:opacity-50"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}

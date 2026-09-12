@@ -9,7 +9,7 @@ export default function Footer() {
           <p className="mt-3 text-sm text-charcoal">Personalized gifts made with love.</p>
           <p className="mt-4 text-sm text-charcoal">
             Contact:{' '}
-            <a href="mailto:hemantnawade@gmail.com" className="underline">
+            <a href="mailto:hemantnawade@gmail.com" className="underline transition active:opacity-50">
               hemantnawade@gmail.com
             </a>
           </p>
@@ -18,20 +18,20 @@ export default function Footer() {
         <div>
           <p className="text-sm font-semibold text-ink">Shop</p>
           <ul className="mt-3 space-y-2 text-sm text-charcoal">
-            <li><Link href="/shop">All Products</Link></li>
-            <li><Link href="/track-order">Track Order</Link></li>
-            <li><Link href="/about">Our Story</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
+            <li><Link href="/shop" className="transition hover:text-maroon-500 active:opacity-50">All Products</Link></li>
+            <li><Link href="/track-order" className="transition hover:text-maroon-500 active:opacity-50">Track Order</Link></li>
+            <li><Link href="/about" className="transition hover:text-maroon-500 active:opacity-50">Our Story</Link></li>
+            <li><Link href="/contact" className="transition hover:text-maroon-500 active:opacity-50">Contact</Link></li>
           </ul>
         </div>
 
         <div>
           <p className="text-sm font-semibold text-ink">Policies</p>
           <ul className="mt-3 space-y-2 text-sm text-charcoal">
-            <li><Link href="/privacy-policy">Privacy Policy</Link></li>
-            <li><Link href="/terms">Terms &amp; Conditions</Link></li>
-            <li><Link href="/shipping-policy">Shipping Policy</Link></li>
-            <li><Link href="/refund-policy">Refund / Cancellation Policy</Link></li>
+            <li><Link href="/privacy-policy" className="transition hover:text-maroon-500 active:opacity-50">Privacy Policy</Link></li>
+            <li><Link href="/terms" className="transition hover:text-maroon-500 active:opacity-50">Terms &amp; Conditions</Link></li>
+            <li><Link href="/shipping-policy" className="transition hover:text-maroon-500 active:opacity-50">Shipping Policy</Link></li>
+            <li><Link href="/refund-policy" className="transition hover:text-maroon-500 active:opacity-50">Refund / Cancellation Policy</Link></li>
           </ul>
         </div>
 

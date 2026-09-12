@@ -56,10 +56,10 @@ export default function Hero({ headline, subtext }: { headline: string; subtext:
           </motion.p>
 
           <motion.div variants={item} className="flex flex-col gap-3 sm:flex-row">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.9 }} transition={{ duration: 0.1 }}>
               <Link href="/shop" className="btn-primary">Shop Now</Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.9 }} transition={{ duration: 0.1 }}>
               <Link href="/shop" className="btn-secondary">Explore Frames</Link>
             </motion.div>
           </motion.div>
